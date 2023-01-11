@@ -1,9 +1,9 @@
 class ToDoListsController < ApplicationController
   before_action :set_to_do_list, only: %i[ show edit update destroy ]
+  before_action :set_to_do_list_all, only: %i[ index ]
 
   # GET /to_do_lists or /to_do_lists.json
   def index
-    @to_do_lists = ToDoList.all
   end
 
   # GET /to_do_lists/1 or /to_do_lists/1.json
@@ -59,8 +59,26 @@ class ToDoListsController < ApplicationController
 
   private
     # Use callbacks to share common setup or constraints between actions.
+    # `find` can be summarized as:
+    # 1. Convert the options (in this case the record ID) in to SQL statements.
+    # 2. Execute the query and retrieve the records from DB.
+    # 3. Instantiate Ruby-equivalent object for each record in the results from query execution.
+    # 4. Run the `after_find` and `after_initialize` callbacks if any exist.
     def set_to_do_list
       @to_do_list = ToDoList.find(params[:id])
+    end
+
+    # Set conditions for queries WITHOUT using string interpolation in order
+    # to prevent SQL injections.
+    def set_to_do_list_all
+      if params[:result] == 'filter'
+        @to_do_lists = ToDoList.where(
+          "id = :id AND name = :name",
+          { id: params[:id], name: params[:name] }
+        )
+      else
+        @to_do_lists = ToDoList.all
+      end
     end
 
     # Only allow a list of trusted parameters through.
