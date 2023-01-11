@@ -2,6 +2,12 @@ class ToDoListsController < ApplicationController
   before_action :set_to_do_list, only: %i[ show edit update destroy ]
   before_action :set_to_do_list_all, only: %i[ index ]
 
+  # GET /to_do_lists/:name
+  def index_like
+    @to_do_lists = ToDoList.where("name LIKE ?", ToDoList.sanitize_sql_like(params[:name]) + "%")
+    render :index, status: :ok
+  end
+
   # GET /to_do_lists or /to_do_lists.json
   def index
   end
